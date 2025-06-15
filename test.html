@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOSMOS Systems Auditor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #1abc9c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            color: white;
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: var(--light);
+        }
+        
+        .audit-form {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        
+        .form-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-audit {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-audit:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.4);
+        }
+        
+        .btn-reset {
+            background: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-reset:hover {
+            background: #d5dbdb;
+        }
+        
+        .report-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            display: none;
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .system-overview {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .system-card {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .system-card h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .score-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            min-width: 250px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin: 20px 0;
+        }
+        
+        .score-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+        
+        .imposed .score-value { color: var(--danger); }
+        .braided .score-value { color: var(--warning); }
+        .natural .score-value { color: var(--success); }
+        
+        .score-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .analysis-section {
+            margin: 40px 0;
+        }
+        
+        .analysis-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .element-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .element-card h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .principle-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .principle-card h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .recommendation-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        
+        .rec-icon {
+            background: var(--accent);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 20px;
+        }
+        
+        .progress-container {
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 6px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 20px;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .system-overview {
+                flex-direction: column;
+            }
+            
+            .element-grid, .principles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-satellite"></i> KOSMOS Systems Auditor</h1>
+            <p>Empowering activists and citizens to analyze systems for justice and sustainability</p>
+        </header>
+        
+        <div class="audit-form" id="auditForm">
+            <div class="form-section">
+                <h3><i class="fas fa-info-circle"></i> System Information</h3>
+                <div class="form-group">
+                    <label for="systemName">System Name</label>
+                    <input type="text" id="systemName" placeholder="e.g., Urban Transit System, Corporate Policy, Environmental Regulation">
+                </div>
+                <div class="form-group">
+                    <label for="systemType">System Type</label>
+                    <select id="systemType">
+                        <option value="">Select a system type</option>
+                        <option value="business">Business/Organization</option>
+                        <option value="policy">Policy/Law</option>
+                        <option value="technology">Technology/Platform</option>
+                        <option value="ecological">Ecological System</option>
+                        <option value="social">Social System</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="systemDescription">System Description</label>
+                    <textarea id="systemDescription" placeholder="Describe the system you're auditing (up to 1000 characters)"></textarea>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button class="btn-audit" id="generateReport">
+                    <i class="fas fa-file-alt"></i> Generate Audit Report
+                </button>
+                <button class="btn-reset" id="resetForm">
+                    <i class="fas fa-redo"></i> Reset Form
+                </button>
+            </div>
+        </div>
+        
+        <div class="report-container" id="reportContainer">
+            <div class="report-header">
+                <h2><i class="fas fa-file-contract"></i> KOSMOS Systems Audit Report</h2>
+                <p id="reportDate"></p>
+            </div>
+            
+            <div class="system-overview">
+                <div class="system-card">
+                    <h3><i class="fas fa-info-circle"></i> System Overview</h3>
+                    <p><strong>Name:</strong> <span id="reportSystemName"></span></p>
+                    <p><strong>Type:</strong> <span id="reportSystemType"></span></p>
+                    <p><strong>Description:</strong> <span id="reportSystemDesc"></span></p>
+                </div>
+                
+                <div class="system-card">
+                    <h3><i class="fas fa-chart-bar"></i> Audit Summary</h3>
+                    <div class="score-card" id="classificationCard">
+                        <div class="score-label">KOSMOS System Type</div>
+                        <div class="score-value" id="classificationScore">Imposed</div>
+                        <p id="classificationDesc">Requires significant redesign</p>
+                    </div>
+                    
+                    <div class="score-card">
+                        <div class="score-label">FDP Score</div>
+                        <div class="score-value" id="totalScore">0/16</div>
+                        <p>Based on 8 Design Principles</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-section">
+                <h3><i class="fas fa-sitemap"></i> Structural Elements Analysis</h3>
+                <div class="element-grid">
+                    <div class="element-card">
+                        <h4><i class="fas fa-sign-in-alt"></i> Input</h4>
+                        <p id="inputAnalysis">Analysis of system inputs will appear here. This includes resources, energy, information, or materials entering the system.</p>
+                    </div>
+                    
+                    <div class="element-card">
+                        <h4><i class="fas fa-sign-out-alt"></i> Output</h4>
+                        <p id="outputAnalysis">Analysis of system outputs will appear here. This includes products, waste, services, or results produced by the system.</p>
+                    </div>
+                    
+                    <div class="element-card">
+                        <h4><i class="fas fa-cogs"></i> Processing</h4>
+                        <p id="processingAnalysis">Analysis of system processing will appear here. This examines how inputs are transformed into outputs within the system.</p>
+                    </div>
+                    
+                    <div class="element-card">
+                        <h4><i class="fas fa-sliders-h"></i> Controls</h4>
+                        <p id="controlsAnalysis">Analysis of system controls will appear here. This includes rules, regulations, and mechanisms that govern system behavior.</p>
+                    </div>
+                    
+                    <div class="element-card">
+                        <h4><i class="fas fa-redo"></i> Feedback</h4>
+                        <p id="feedbackAnalysis">Analysis of system feedback will appear here. This examines information loops that allow the system to adapt and self-correct.</p>
+                    </div>
+                    
+                    <div class="element-card">
+                        <h4><i class="fas fa-window-maximize"></i> Interface</h4>
+                        <p id="interfaceAnalysis">Analysis of system interfaces will appear here. This examines how the system interacts with other systems and its environment.</p>
+                    </div>
+                    
+                    <div class="element-card">
+                        <h4><i class="fas fa-globe-americas"></i> Environment</h4>
+                        <p id="environmentAnalysis">Analysis of system environment will appear here. This examines the context in which the system operates and external influences.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-section">
+                <h3><i class="fas fa-clipboard-check"></i> Design Principles Assessment</h3>
+                <div class="principles-grid">
+                    <div class="principle-card">
+                        <h4><i class="fas fa-heart"></i> Life-Sustaining Goals</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressLife" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scoreLife">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="lifeAnalysis">Assessment of how the system prioritizes the long-term health of living systems will appear here.</p>
+                    </div>
+                    
+                    <div class="principle-card">
+                        <h4><i class="fas fa-seedling"></i> Regenerative Capacity</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressRegen" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scoreRegen">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="regenAnalysis">Assessment of the system's ability to recover from disturbances and maintain functionality will appear here.</p>
+                    </div>
+                    
+                    <div class="principle-card">
+                        <h4><i class="fas fa-handshake"></i> Mutual Accountability</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressAccount" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scoreAccount">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="accountAnalysis">Assessment of mechanisms for fair responsibility among stakeholders will appear here.</p>
+                    </div>
+                    
+                    <div class="principle-card">
+                        <h4><i class="fas fa-recycle"></i> Zero-Waste Flows</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressWaste" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scoreWaste">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="wasteAnalysis">Assessment of resource cycling efficiency without pollution or depletion will appear here.</p>
+                    </div>
+                    
+                    <div class="principle-card">
+                        <h4><i class="fas fa-users"></i> Shared Control</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressControl" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scoreControl">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="controlAnalysis">Assessment of power and decision-making distribution among those affected will appear here.</p>
+                    </div>
+                    
+                    <div class="principle-card">
+                        <h4><i class="fas fa-map-marked-alt"></i> Place-Based Fit</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressPlace" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scorePlace">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="placeAnalysis">Assessment of the system's adaptation to local ecological and cultural contexts will appear here.</p>
+                    </div>
+                    
+                    <div class="principle-card">
+                        <h4><i class="fas fa-comments"></i> Open Feedback</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFeedback" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scoreFeedback">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="feedbackAnalysis">Assessment of information transparency and accessibility for learning and adaptation will appear here.</p>
+                    </div>
+                    
+                    <div class="principle-card">
+                        <h4><i class="fas fa-chart-line"></i> Evidence-Based Design</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressEvidence" style="width: 0%; background-color: #1abc9c;"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Score: <span id="scoreEvidence">0/2</span></span>
+                            </div>
+                        </div>
+                        <p id="evidenceAnalysis">Assessment of whether decisions are grounded in data and tested knowledge will appear here.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-section">
+                <h3><i class="fas fa-lightbulb"></i> Recommendations</h3>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-heart"></i></div>
+                    <div>
+                        <h4>Life-Sustaining Goals Recommendations</h4>
+                        <p id="lifeRec">Specific recommendations for aligning the system with life-sustaining goals will appear here.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-seedling"></i></div>
+                    <div>
+                        <h4>Regenerative Capacity Recommendations</h4>
+                        <p id="regenRec">Specific recommendations for enhancing regenerative capacity will appear here.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-handshake"></i></div>
+                    <div>
+                        <h4>Mutual Accountability Recommendations</h4>
+                        <p id="accountRec">Specific recommendations for improving mutual accountability will appear here.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-recycle"></i></div>
+                    <div>
+                        <h4>Zero-Waste Flows Recommendations</h4>
+                        <p id="wasteRec">Specific recommendations for achieving zero-waste flows will appear here.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-users"></i></div>
+                    <div>
+                        <h4>Shared Control Recommendations</h4>
+                        <p id="controlRec">Specific recommendations for implementing shared control will appear here.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <div>
+                        <h4>Place-Based Fit Recommendations</h4>
+                        <p id="placeRec">Specific recommendations for enhancing place-based fit will appear here.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-comments"></i></div>
+                    <div>
+                        <h4>Open Feedback Recommendations</h4>
+                        <p id="feedbackRec">Specific recommendations for improving open feedback mechanisms will appear here.</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-chart-line"></i></div>
+                    <div>
+                        <h4>Evidence-Based Design Recommendations</h4>
+                        <p id="evidenceRec">Specific recommendations for strengthening evidence-based design will appear here.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button class="btn-audit" id="newAudit">
+                    <i class="fas fa-plus-circle"></i> Start New Audit
+                </button>
+                <button class="btn-reset" id="printReport">
+                    <i class="fas fa-print"></i> Print Report
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>KOSMOS Systems Auditor v1.0 | Designed for Social Justice Activists</p>
+            <p>"Mother Nature will never force you to believe in the unnatural"</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate report button
+            const generateBtn = document.getElementById('generateReport');
+            const reportContainer = document.getElementById('reportContainer');
+            const auditForm = document.getElementById('auditForm');
+            
+            generateBtn.addEventListener('click', function() {
+                // Get system info
+                const systemName = document.getElementById('systemName').value || 'Unnamed System';
+                const systemType = document.getElementById('systemType').value || 'Not specified';
+                const systemDesc = document.getElementById('systemDescription').value || 'No description provided';
+                
+                // Set report details
+                document.getElementById('reportSystemName').textContent = systemName;
+                document.getElementById('reportSystemType').textContent = getSystemTypeLabel(systemType);
+                document.getElementById('reportSystemDesc').textContent = systemDesc;
+                
+                // Set current date
+                const now = new Date();
+                document.getElementById('reportDate').textContent = `Audit conducted on ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
+                
+                // Generate assessment based on system type
+                const assessment = generateAssessment(systemType, systemName);
+                
+                // Set classification
+                const classificationCard = document.getElementById('classificationCard');
+                classificationCard.className = `score-card ${assessment.classification}`;
+                document.getElementById('classificationScore').textContent = assessment.classification;
+                document.getElementById('classificationDesc').textContent = getClassificationDescription(assessment.classification);
+                
+                // Set total score
+                document.getElementById('totalScore').textContent = `${assessment.totalScore}/16`;
+                
+                // Set element analyses
+                document.getElementById('inputAnalysis').textContent = assessment.elements.input;
+                document.getElementById('outputAnalysis').textContent = assessment.elements.output;
+                document.getElementById('processingAnalysis').textContent = assessment.elements.processing;
+                document.getElementById('controlsAnalysis').textContent = assessment.elements.controls;
+                document.getElementById('feedbackAnalysis').textContent = assessment.elements.feedback;
+                document.getElementById('interfaceAnalysis').textContent = assessment.elements.interface;
+                document.getElementById('environmentAnalysis').textContent = assessment.elements.environment;
+                
+                // Set design principles
+                const principles = [
+                    'life', 'regen', 'account', 'waste',
+                    'control', 'place', 'feedback', 'evidence'
+                ];
+                
+                principles.forEach(principle => {
+                    const data = assessment.principles[principle];
+                    
+                    // Update progress bar
+                    const progressFill = document.getElementById(`progress${capitalizeFirst(principle)}`);
+                    const scoreElement = document.getElementById(`score${capitalizeFirst(principle)}`);
+                    const analysisElement = document.getElementById(`${principle}Analysis`);
+                    const recElement = document.getElementById(`${principle}Rec`);
+                    
+                    if (progressFill && scoreElement && analysisElement && recElement) {
+                        const percentage = (data.score / 2) * 100;
+                        progressFill.style.width = `${percentage}%`;
+                        scoreElement.textContent = `${data.score}/2`;
+                        analysisElement.textContent = data.analysis;
+                        recElement.textContent = data.recommendation;
+                    }
+                });
+                
+                // Show report and hide form
+                auditForm.style.display = 'none';
+                reportContainer.style.display = 'block';
+            });
+            
+            // Reset form button
+            const resetBtn = document.getElementById('resetForm');
+            resetBtn.addEventListener('click', function() {
+                document.getElementById('auditForm').reset();
+            });
+            
+            // New audit button
+            const newAuditBtn = document.getElementById('newAudit');
+            newAuditBtn.addEventListener('click', function() {
+                reportContainer.style.display = 'none';
+                auditForm.style.display = 'block';
+                document.getElementById('auditForm').reset();
+            });
+            
+            // Print report button
+            const printBtn = document.getElementById('printReport');
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Helper functions
+            function getSystemTypeLabel(type) {
+                const types = {
+                    'business': 'Business/Organization',
+                    'policy': 'Policy/Law',
+                    'technology': 'Technology/Platform',
+                    'ecological': 'Ecological System',
+                    'social': 'Social System',
+                    'other': 'Other'
+                };
+                return types[type] || 'Not specified';
+            }
+            
+            function capitalizeFirst(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+            
+            function getClassificationDescription(classification) {
+                const descriptions = {
+                    'Natural': 'System is well-aligned with life-sustaining principles',
+                    'Braided': 'System shows potential but needs improvement',
+                    'Imposed': 'System requires significant redesign'
+                };
+                return descriptions[classification] || 'System classification description';
+            }
+            
+            // Generate assessment based on system type
+            function generateAssessment(systemType, systemName) {
+                const assessments = {
+                    'business': {
+                        classification: 'Imposed',
+                        totalScore: 5,
+                        elements: {
+                            input: `The ${systemName} system primarily receives financial capital, human resources, and raw materials as inputs. These are often sourced through global supply chains with limited transparency.`,
+                            output: `Outputs include products/services, financial profits, waste streams, and social impacts. The profit motive often dominates other considerations.`,
+                            processing: `Processing transforms inputs to outputs through hierarchical decision-making, production processes, and market positioning strategies.`,
+                            controls: `Controls include corporate policies, management hierarchies, and market regulations. Power is typically concentrated at the top.`,
+                            feedback: `Feedback mechanisms include financial reports, customer satisfaction metrics, and employee evaluations, but often ignore environmental and social impacts.`,
+                            interface: `Interfaces with customers, suppliers, communities, and regulators are primarily transactional rather than relational.`,
+                            environment: `Operates in competitive market environments with regulatory constraints, but often externalizes environmental costs.`
+                        },
+                        principles: {
+                            life: {
+                                score: 0,
+                                analysis: `${systemName} prioritizes profit over life-sustaining goals. Environmental and social well-being are secondary concerns at best.`,
+                                recommendation: `Adopt triple bottom line accounting (people, planet, profit). Establish clear environmental and social impact goals with measurable targets.`
+                            },
+                            regen: {
+                                score: 1,
+                                analysis: `The system has limited regenerative capacity. While some resilience exists for market fluctuations, it lacks ecological restoration mechanisms.`,
+                                recommendation: `Implement circular economy principles. Develop disaster recovery plans that include ecological restoration and community support.`
+                            },
+                            account: {
+                                score: 0,
+                                analysis: `Accountability flows upward to shareholders rather than outward to stakeholders. Communities and ecosystems bear costs without representation.`,
+                                recommendation: `Create multi-stakeholder governance bodies. Implement transparent reporting on social and environmental impacts.`
+                            },
+                            waste: {
+                                score: 1,
+                                analysis: `Waste streams are significant and often externalized. Linear "take-make-waste" models dominate, with limited recycling and reuse.`,
+                                recommendation: `Conduct full lifecycle analysis. Implement zero-waste initiatives and circular resource flows throughout operations.`
+                            },
+                            control: {
+                                score: 0,
+                                analysis: `Control is highly centralized with decision-making concentrated among executives and shareholders. Workers and communities have minimal influence.`,
+                                recommendation: `Implement worker ownership models. Create community advisory boards with decision-making authority on local impacts.`
+                            },
+                            place: {
+                                score: 1,
+                                analysis: `The system shows limited adaptation to local contexts. Standardized approaches often override place-specific knowledge and needs.`,
+                                recommendation: `Conduct place-based impact assessments. Partner with local communities to co-create context-specific solutions.`
+                            },
+                            feedback: {
+                                score: 1,
+                                analysis: `Feedback mechanisms exist for customers and shareholders but are inadequate for broader stakeholders. Impact data is often inaccessible.`,
+                                recommendation: `Establish transparent reporting systems accessible to all stakeholders. Create participatory monitoring programs with communities.`
+                            },
+                            evidence: {
+                                score: 1,
+                                analysis: `Decisions are primarily driven by financial metrics with limited consideration of scientific evidence on social and environmental impacts.`,
+                                recommendation: `Establish science advisory boards. Require evidence-based impact assessments for all major decisions.`
+                            }
+                        }
+                    },
+                    'policy': {
+                        classification: 'Braided',
+                        totalScore: 9,
+                        elements: {
+                            input: `Inputs include public needs, expert analysis, political considerations, and stakeholder input. However, corporate lobbying often dominates.`,
+                            output: `Outputs are regulations, services, and resource allocations that shape societal outcomes. Impact varies significantly across communities.`,
+                            processing: `Processing involves legislative procedures, bureaucratic implementation, and stakeholder negotiations. Power dynamics heavily influence outcomes.`,
+                            controls: `Controls include legal frameworks, oversight mechanisms, and electoral accountability, though these are often inadequate for marginalized groups.`,
+                            feedback: `Feedback mechanisms include elections, audits, and public consultations, but these are often inaccessible to vulnerable populations.`,
+                            interface: `Interfaces with citizens are typically bureaucratic and complex. Access differs significantly based on privilege and resources.`,
+                            environment: `Operates within political and economic contexts that often prioritize short-term gains over long-term sustainability.`
+                        },
+                        principles: {
+                            life: {
+                                score: 1,
+                                analysis: `Policy goals sometimes acknowledge life-sustaining principles but are often overridden by economic and political considerations.`,
+                                recommendation: `Adopt a "well-being economy" framework. Require life-cycle assessments for all major policy decisions.`
+                            },
+                            regen: {
+                                score: 1,
+                                analysis: `Some policies include resilience planning, but systemic regenerative capacity is limited and fragmented across jurisdictions.`,
+                                recommendation: `Develop integrated resilience frameworks. Create regional regeneration zones with dedicated funding and authority.`
+                            },
+                            account: {
+                                score: 1,
+                                analysis: `Accountability mechanisms exist but are unequal. Corporations and wealthy individuals often evade accountability that burdens marginalized communities.`,
+                                recommendation: `Create independent accountability commissions with community oversight. Implement equity-focused enforcement strategies.`
+                            },
+                            waste: {
+                                score: 1,
+                                analysis: `Resource efficiency is improving in some areas, but policy systems still generate significant bureaucratic and material waste.`,
+                                recommendation: `Implement lean policy frameworks. Create circular resource flows in government operations and procurement.`
+                            },
+                            control: {
+                                score: 1,
+                                analysis: `Decision-making power is concentrated among elected officials and bureaucrats, with limited meaningful community participation.`,
+                                recommendation: `Establish participatory budgeting processes. Create citizen assemblies with binding decision authority on key issues.`
+                            },
+                            place: {
+                                score: 1,
+                                analysis: `Policies often apply standardized approaches that fail to account for local ecological and cultural contexts.`,
+                                recommendation: `Develop place-based policy frameworks. Empower local communities to adapt policies to their specific contexts.`
+                            },
+                            feedback: {
+                                score: 2,
+                                analysis: `Public consultation processes exist but are often performative. Impact data is collected but not always transparent or accessible.`,
+                                recommendation: `Create accessible feedback platforms. Implement real-time policy impact dashboards with community input mechanisms.`
+                            },
+                            evidence: {
+                                score: 2,
+                                analysis: `Evidence informs policy development, though political considerations often override scientific consensus, especially on contentious issues.`,
+                                recommendation: `Strengthen science-policy interfaces. Require evidence-based justification for all policy decisions with public documentation.`
+                            }
+                        }
+                    },
+                    'ecological': {
+                        classification: 'Natural',
+                        totalScore: 14,
+                        elements: {
+                            input: `Natural systems receive energy from the sun, nutrients from the environment, and water from precipitation and watersheds.`,
+                            output: `Outputs include oxygen production, carbon sequestration, biodiversity, water purification, and habitat provision.`,
+                            processing: `Processing occurs through complex biological and ecological interactions - photosynthesis, decomposition, nutrient cycling, and species interactions.`,
+                            controls: `Controls are emergent through evolutionary processes, species interactions, and feedback mechanisms that maintain balance.`,
+                            feedback: `Feedback loops are numerous and sophisticated, enabling adaptation to changing conditions through natural selection and ecological succession.`,
+                            interface: `Interfaces between ecosystems are rich and complex, enabling energy, nutrient, and species exchange across boundaries.`,
+                            environment: `Ecological systems exist within larger bioregional and planetary contexts, responding to climate, geology, and atmospheric conditions.`
+                        },
+                        principles: {
+                            life: {
+                                score: 2,
+                                analysis: `Natural systems are inherently life-sustaining, evolving over millennia to optimize conditions for biodiversity and ecosystem health.`,
+                                recommendation: `Protect and restore natural systems. Integrate ecological principles into human-designed systems.`
+                            },
+                            regen: {
+                                score: 2,
+                                analysis: `Ecological systems have extraordinary regenerative capacity, recovering from disturbances through succession and adaptation.`,
+                                recommendation: `Support natural regeneration processes. Mimic ecological resilience in human systems design.`
+                            },
+                            account: {
+                                score: 2,
+                                analysis: `Natural systems maintain balance through intricate mutual dependencies where each element contributes to and benefits from the whole.`,
+                                recommendation: `Apply mutual accountability frameworks to human systems. Recognize our responsibility to ecological systems.`
+                            },
+                            waste: {
+                                score: 2,
+                                analysis: `Natural systems operate as closed loops where waste from one process becomes resource for another, creating zero-waste flows.`,
+                                recommendation: `Adopt circular economy models inspired by natural systems. Eliminate waste through biomimetic design.`
+                            },
+                            control: {
+                                score: 2,
+                                analysis: `Control is distributed throughout natural systems, with no central authority but rather emergent coordination through countless interactions.`,
+                                recommendation: `Design decentralized systems with distributed control mechanisms. Empower local decision-making.`
+                            },
+                            place: {
+                                score: 2,
+                                analysis: `Natural systems are exquisitely adapted to local conditions through evolutionary processes and ecological relationships.`,
+                                recommendation: `Develop place-specific solutions informed by local ecological knowledge. Honor indigenous place-based wisdom.`
+                            },
+                            feedback: {
+                                score: 2,
+                                analysis: `Feedback mechanisms are continuous and sophisticated, enabling real-time adaptation to changing conditions.`,
+                                recommendation: `Implement responsive feedback systems in human organizations. Create transparent monitoring and adaptation mechanisms.`
+                            },
+                            evidence: {
+                                score: 2,
+                                analysis: `Natural systems are the ultimate evidence-based designers, evolving through rigorous testing over geological time scales.`,
+                                recommendation: `Ground human systems design in scientific evidence and ecological wisdom. Establish long-term monitoring programs.`
+                            }
+                        }
+                    }
+                };
+                
+                // Default assessment if specific type not found
+                const defaultAssessment = assessments['business'];
+                
+                return assessments[systemType] || defaultAssessment;
+            }
+        });
+    </script>
+</body>
+  </html>
